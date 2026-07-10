@@ -1,0 +1,38 @@
+server:
+  port: 8090
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [txnId=%X{txnId:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [txnId=%X{txnId:-}] %logger{36} - %msg%n"
+
+spring:
+  application:
+    name: sso-api
+  mongodb:
+    uri: mongodb://localhost:27017/gruhasti_sso
+  mail:
+    host: smtp.office365.com
+    port: 587
+    username: ${MAIL_USERNAME:contact@gruhasti.vip}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+gruhasti:
+  jwt:
+    secret: ${JWT_SECRET:change-this-secret-in-production}
+    expiration-ms: 86400000
+  admin:
+    email: ${ADMIN_EMAIL:admin@gruhasti.vip}
+    password: ${ADMIN_PASSWORD:ChangeMe@123}
+  cors:
+    allowed-origins:
+      - http://localhost:4200
+      - https://gruhasti.vip
+      - https://shuddha.gruhasti.vip
+      - https://pen2ppr.gruhasti.vip
