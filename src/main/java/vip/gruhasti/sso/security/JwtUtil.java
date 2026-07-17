@@ -26,10 +26,11 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
-    public String generate(String userId, String email, Set<User.Role> roles) {
+    public String generate(String userId, String email, String firstName, Set<User.Role> roles) {
         return Jwts.builder()
                 .subject(userId)
                 .claim("email", email)
+                .claim("firstName", firstName)
                 .claim("roles", roles.stream().map(Enum::name).collect(Collectors.joining(",")))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))

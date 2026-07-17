@@ -3,12 +3,16 @@ server:
 
 logging:
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [txnId=%X{txnId:-}] %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [txnId=%X{txnId:-}] %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [txnId=%X{txnId:-}] %logger{36}:%line - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [txnId=%X{txnId:-}] %logger{36}:%line - %msg%n"
 
 spring:
   application:
     name: sso-api
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 3MB
   mongodb:
     uri: mongodb://localhost:27017/gruhasti_sso
   mail:
@@ -23,16 +27,26 @@ spring:
           starttls:
             enable: true
 
+azure:
+  client-id: ${AZURE_CLIENT_ID}
+  client-secret: ${AZURE_CLIENT_SECRET}
+  tenant-id: ${AZURE_TENANT_ID}
+  sender-email: ${AZURE_SENDER_EMAIL:ajitesh.newnaha@gruhasti.vip}
+
 gruhasti:
+  public-base-url: ${PUBLIC_BASE_URL:https://gruhasti.vip/sso-api}
   jwt:
     secret: ${JWT_SECRET:change-this-secret-in-production}
     expiration-ms: 86400000
   admin:
     email: ${ADMIN_EMAIL:admin@gruhasti.vip}
     password: ${ADMIN_PASSWORD:ChangeMe@123}
+  sso-ui-origin: ${SSO_UI_ORIGIN:http://localhost:4200}
   cors:
     allowed-origins:
       - http://localhost:4200
+      - http://localhost:4201
+      - http://localhost:4202
       - https://gruhasti.vip
       - https://shuddha.gruhasti.vip
       - https://pen2ppr.gruhasti.vip
