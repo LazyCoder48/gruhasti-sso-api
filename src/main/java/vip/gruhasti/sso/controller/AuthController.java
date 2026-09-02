@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import vip.gruhasti.sso.dto.ActivatePasswordRequest;
 import vip.gruhasti.sso.dto.AuthResponse;
 import vip.gruhasti.sso.dto.ForgotPasswordRequest;
 import vip.gruhasti.sso.dto.LoginRequest;
@@ -22,8 +23,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
-        return ResponseEntity.ok(authService.register(req));
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest req) {
+        authService.register(req);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
@@ -49,5 +51,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.ok(authService.me(authentication.getName()));
+    }
+
+    @PostMapping("/activate-password")
+    public ResponseEntity<AuthResponse> activatePassword(Authentication authentication,
+            @Valid @RequestBody ActivatePasswordRequest req) {
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.activatePassword(authentication.getName(), req.getNewPassword()));
     }
 }

@@ -20,6 +20,7 @@ import vip.gruhasti.sso.repository.PasswordResetTokenRepository;
 import vip.gruhasti.sso.repository.UserRepository;
 import vip.gruhasti.sso.security.DeviceFingerprint;
 import vip.gruhasti.sso.security.JwtUtil;
+import vip.gruhasti.sso.security.TempPasswordGenerator;
 import vip.gruhasti.sso.security.TokenHasher;
 
 import java.time.Instant;
@@ -49,6 +50,7 @@ public class AuthService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final TokenHasher tokenHasher;
     private final EmailTemplateRepository emailTemplateRepository;
+    private final TempPasswordGenerator tempPasswordGenerator;
 
     @Value("${gruhasti.sso-ui-origin}")
     private String ssoUiOrigin;
@@ -56,7 +58,7 @@ public class AuthService {
     @Value("${gruhasti.public-base-url}")
     private String publicBaseUrl;
 
-    public AuthResponse register(RegisterRequest req) {
+    public void register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.getEmail())) {
             throw new AuthException("Email already in use");
         }
@@ -66,13 +68,13 @@ public class AuthService {
         user.setLastName(req.getLastName());
         user.setMobile(req.getMobile());
         user.setFlatNumber(req.getFlatNumber());
-        user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
-        user.setRoles(req.getRoles() != null && !req.getRoles().isEmpty()
-                ? req.getRoles() : Set.of(User.Role.CUSTOMER));
+        String tempPassword = tempPasswordGenerator.generate();
+        user.setPasswordHash(passwordEncoder.encode(tempPassword));
+        user.setMustChangePassword(true);
+        user.setRoles(Set.of(User.Role.CUSTOMER));
         userRepository.save(user);
         sendTemplatedEmail(user.getEmail(), EmailTemplate.Type.REGISTRATION_WELCOME,
-                Map.of("firstName", user.getFirstName()));
-        return authResponse(user);
+                Map.of("firstName", user.getFirstName(), "tempPassword", tempPassword));
     }
 
     public AuthResponse login(LoginRequest req, String userAgent) {
@@ -114,10 +116,20 @@ public class AuthService {
         User user = userRepository.findById(resetToken.getUserId())
                 .orElseThrow(() -> new AuthException("Invalid or expired reset link"));
         user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(false);
         userRepository.save(user);
 
         resetToken.setUsed(true);
         passwordResetTokenRepository.save(resetToken);
+    }
+
+    public AuthResponse activatePassword(String userId, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AuthException("User not found"));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
+        return authResponse(user);
     }
 
     public AuthResponse me(String userId) {
@@ -216,8 +228,10 @@ public class AuthService {
     }
 
     private AuthResponse authResponse(User user) {
-        String token = jwtUtil.generate(user.getId(), user.getEmail(), user.getFirstName(), user.getRoles());
+        String token = jwtUtil.generate(user.getId(), user.getEmail(), user.getFirstName(), user.getRoles(),
+                user.isMustChangePassword());
         return new AuthResponse(token, user.getId(), user.getEmail(),
-                user.getFirstName(), user.getLastName(), user.getMobile(), user.getFlatNumber(), user.getRoles());
+                user.getFirstName(), user.getLastName(), user.getMobile(), user.getFlatNumber(), user.getRoles(),
+                user.isMustChangePassword());
     }
 }

@@ -38,9 +38,14 @@ gruhasti:
   jwt:
     secret: ${JWT_SECRET:change-this-secret-in-production}
     expiration-ms: 86400000
+  internal:
+    api-key: ${INTERNAL_API_KEY:change-this-internal-key-in-production}
   admin:
     email: ${ADMIN_EMAIL:admin@gruhasti.vip}
     password: ${ADMIN_PASSWORD:ChangeMe@123}
+  super-admin:
+    email: ${SUPER_ADMIN_EMAIL:ajitesh.newnaha@gruhasti.vip}
+    password: ${SUPER_ADMIN_PASSWORD}
   sso-ui-origin: ${SSO_UI_ORIGIN:http://localhost:4200}
   cors:
     allowed-origins:

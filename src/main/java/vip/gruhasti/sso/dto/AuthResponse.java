@@ -17,4 +17,5 @@ public class AuthResponse {
     private String mobile;
     private String flatNumber;
     private Set<User.Role> roles;
+    private boolean mustChangePassword;
 }

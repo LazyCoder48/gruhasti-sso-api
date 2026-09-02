@@ -29,6 +29,7 @@ public class User {
     private String flatNumber;
     private Set<Role> roles;
     private boolean enabled = true;
+    private boolean mustChangePassword = false;
 
     @CreatedDate
     private Instant createdAt;
@@ -37,6 +38,6 @@ public class User {
     private Instant updatedAt;
 
     public enum Role {
-        CUSTOMER, ADMIN
+        CUSTOMER, ADMIN, SUPER_ADMIN
     }
 }

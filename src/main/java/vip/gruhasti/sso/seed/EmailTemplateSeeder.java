@@ -25,10 +25,11 @@ public class EmailTemplateSeeder implements CommandLineRunner {
             t.setSubject("Welcome to Gruhasti!");
             t.setHeading("Welcome to Gruhasti!");
             t.setBodyText(
-                    "Your Gruhasti.vip account is ready. Sign in once to shop Pen2Paper, Shuddha, and "
-                            + "everything else on Gruhasti — all your orders, one account.");
-            t.setButtonLabel("Start shopping");
-            t.setButtonUrl("https://gruhasti.vip");
+                    "Your Gruhasti.vip account is ready. We've generated a temporary password for "
+                            + "you, shown below — sign in with it and you'll be asked to set a "
+                            + "permanent password before doing anything else.");
+            t.setButtonLabel("Sign in now");
+            t.setButtonUrl("https://gruhasti.vip/sso-ui/login");
             t.setEnabled(true);
             return t;
         });
